@@ -26,6 +26,7 @@ use OC\IntegrityCheck\Helpers\AppLocator;
 use OC\IntegrityCheck\Helpers\EnvironmentHelper;
 use OC\IntegrityCheck\Helpers\FileAccessHelper;
 use OC\Memcache\NullCache;
+use OC\Memcache\Redis;
 use OCP\App\IAppManager;
 use OCP\ICacheFactory;
 use OCP\IConfig;
@@ -1250,5 +1251,29 @@ class CheckerTest extends TestCase {
 		];
 
 		$this->assertSame($expected, $this->checker->verifyAppSignature('SomeApp'));
+	}
+
+	public function testVerifyCachedAppSignatureCheck() {
+		$redisObj = $this->createMock(Redis::class);
+		$redisObj->method('get')
+			->with('SomeApp')
+			->willReturn('[]');
+		$cacheFactory = $this->createMock(ICacheFactory::class);
+		$cacheFactory
+			->expects($this->any())
+			->method('create')
+			->with('oc.integritycheck.checker')
+			->will($this->returnValue($redisObj));
+		$checker = new Checker(
+			$this->environmentHelper,
+			$this->fileAccessHelper,
+			$this->appLocator,
+			$this->config,
+			$cacheFactory,
+			$this->appManager,
+			\OC::$server->getTempManager()
+		);
+		$expected = '[]';
+		$this->assertSame($expected, $checker->verifyAppSignature('SomeApp'));
 	}
 }

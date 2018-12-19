@@ -461,6 +461,8 @@ class Checker {
 		}
 
 		$this->setAppValue(self::CACHE_KEY, \json_encode($resultArray));
+		//Set cache for each app
+		$this->cache->set($scope, \json_encode($resultArray));
 		$this->cache->set(self::CACHE_KEY, \json_encode($resultArray));
 	}
 
@@ -569,6 +571,10 @@ class Checker {
 	 * @return array
 	 */
 	public function verifyAppSignature($appId, $path = '', $force = false) {
+		$cacheVal = $this->cache->get($appId);
+		if ($cacheVal !== null) {
+			return $cacheVal;
+		}
 		try {
 			if ($path === '') {
 				$path = $this->appLocator->getAppPath($appId);
