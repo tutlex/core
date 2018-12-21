@@ -87,6 +87,12 @@ class Manager implements IManager {
 	private $connection;
 
 	/**
+	 * FIXME: Should be ExtraSharePermissionManager
+	 * @var array
+	 */
+	private $registeredExtraPermissionsMap;
+
+	/**
 	 * Manager constructor.
 	 *
 	 * @param ILogger $logger
@@ -129,6 +135,7 @@ class Manager implements IManager {
 		$this->eventDispatcher = $eventDispatcher;
 		$this->view = $view;
 		$this->connection = $connection;
+		$this->extraPermissionMap = array();
 	}
 
 	/**
@@ -1542,5 +1549,37 @@ class Manager implements IManager {
 	 */
 	public function outgoingServer2ServerSharesAllowed() {
 		return $this->config->getAppValue('files_sharing', 'outgoing_server2server_share_enabled', 'yes') === 'yes';
+	}
+
+	public function registerExtraPermission($app, $permission, $permissionLabel, $permissionNotification) {
+		$this->registeredExtraPermissionsMap[$app][$permission]['label'] = $permissionLabel;
+		$this->registeredExtraPermissionsMap[$app][$permission]['notification'] = $permissionNotification;
+	}
+
+	public function getExtraPermissionApps() {
+		return \array_keys($this->registeredExtraPermissionsMap);
+	}
+
+	public function getExtraPermissionKeys($app) {
+		if (array_key_exists($app, $this->registeredExtraPermissionsMap)) {
+			return \array_keys($this->registeredExtraPermissionsMap[$app]);
+		}
+		return [];
+	}
+
+	public function getExtraPermissionLabel($app, $permission) {
+		if (array_key_exists($app, $this->registeredExtraPermissionsMap) &&
+			array_key_exists($permission, $this->registeredExtraPermissionsMap[$app])) {
+			return $this->registeredExtraPermissionsMap[$app][$permission]['label'];
+		}
+		return null;
+	}
+
+	public function getExtraPermissionNotification($app, $permission) {
+		if (array_key_exists($app, $this->registeredExtraPermissionsMap) &&
+			array_key_exists($permission, $this->registeredExtraPermissionsMap[$app])) {
+			return $this->registeredExtraPermissionsMap[$app][$permission]['notification'];
+		}
+		return null;
 	}
 }

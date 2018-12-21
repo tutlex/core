@@ -26,6 +26,7 @@ use OCA\DAV\CalDAV\BirthdayService;
 use OCA\DAV\Capabilities;
 use OCA\DAV\CardDAV\ContactsManager;
 use OCA\DAV\CardDAV\SyncService;
+use OCA\DAV\DAV\ViewOnlyPlugin;
 use OCA\DAV\HookManager;
 use OCP\AppFramework\App;
 use OCP\Contacts\IManager;
@@ -46,6 +47,14 @@ class Application extends App {
 		 * Register capabilities
 		 */
 		$this->getContainer()->registerCapability(Capabilities::class);
+
+		/*
+		 * Register extra share permission plugin for view-only
+		 */
+		$viewOnlyPlugin = new ViewOnlyPlugin(
+			$this->getContainer()->getServer()->getShareManager()
+		);
+		$viewOnlyPlugin->registerExtraPermissions();
 	}
 
 	/**

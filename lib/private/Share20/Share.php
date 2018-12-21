@@ -51,6 +51,8 @@ class Share implements \OCP\Share\IShare {
 	private $shareOwner;
 	/** @var int */
 	private $permissions;
+	/** @var ExtraSharePermissions */
+	private $extraPermissions;
 	/** @var \DateTime */
 	private $expireDate;
 	/** @var string */
@@ -267,6 +269,28 @@ class Share implements \OCP\Share\IShare {
 	 */
 	public function getPermissions() {
 		return $this->permissions;
+	}
+
+	/**
+	 * Set extra permissions
+	 *
+	 * @param ExtraSharePermissions
+	 * @since 11.0.0
+	 * @return \OC\Share20\Share
+	 */
+	public function setExtraPermissions($permissions) {
+		$this->extraPermissions = $permissions;
+		return $this;
+	}
+
+	/**
+	 * Get extra permissions
+	 *
+	 * @return ExtraSharePermissions
+	 * @since 11.0.0
+	 */
+	public function getExtraPermissions() {
+		return $this->extraPermissions;
 	}
 
 	/**

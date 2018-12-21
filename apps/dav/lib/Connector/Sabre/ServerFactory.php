@@ -30,7 +30,7 @@ namespace OCA\DAV\Connector\Sabre;
 
 use OCA\DAV\DAV\FileCustomPropertiesBackend;
 use OCA\DAV\DAV\FileCustomPropertiesPlugin;
-use OCA\DAV\DAV\SecureViewPlugin;
+use OCA\DAV\DAV\ViewOnlyPlugin;
 use OCA\DAV\Files\BrowserErrorPagePlugin;
 use OCA\DAV\Files\FileLocksBackend;
 use OCP\Files\Mount\IMountManager;
@@ -155,8 +155,9 @@ class ServerFactory {
 			);
 			$server->addPlugin(new \OCA\DAV\Connector\Sabre\QuotaPlugin($view));
 
-			$server->addPlugin(new SecureViewPlugin(
-				\OC::$server->getLogger()
+			// Allow view-only plugin for webdav requests
+			$server->addPlugin(new ViewOnlyPlugin(
+				\OC::$server->getShareManager()
 			));
 
 			if ($this->userSession->isLoggedIn()) {

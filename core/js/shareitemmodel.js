@@ -38,6 +38,7 @@
 	 * @typedef {object} OC.Share.Types.ShareInfo
 	 * @property {number} share_type
 	 * @property {number} permissions
+	 * @property {string} extra_permissions
 	 * @property {number} file_source optional
 	 * @property {number} item_source
 	 * @property {string} token
@@ -54,6 +55,14 @@
 	 * @property {OC.Share.Types.Reshare} reshare
 	 * @property {OC.Share.Types.ShareInfo[]} shares
 	 * @property {OC.Share.Types.LinkShareInfo|undefined} linkShare
+	 */
+
+	/**
+	 * @typedef {object} OC.Share.Types.SharePermission
+	 * @property {string} appId
+	 * @property {string} permissionName
+	 * @property {string} permissionLabel
+	 * @property {bool} permissionEnabled
 	 */
 
 	/**
@@ -392,6 +401,24 @@
 				throw "Unknown Share";
 			}
 			return share.share_type;
+		},
+
+		/**
+		 * @param shareIndex
+		 * @returns OC.Share.Types.SharePermission
+		 */
+		getShareExtraPermissions: function(shareIndex) {
+			/** @type OC.Share.Types.ShareInfo **/
+			var share = this.get('shares')[shareIndex];
+			if(!_.isObject(share)) {
+				throw "Unknown Share";
+			}
+
+			if (_.isUndefined(share.extra_permissions)) {
+				return [];
+			}
+
+			return JSON.parse(share.extra_permissions);
 		},
 
 		/**

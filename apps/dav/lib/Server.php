@@ -49,7 +49,7 @@ use OCA\DAV\DAV\FileCustomPropertiesPlugin;
 use OCA\DAV\DAV\LazyOpsPlugin;
 use OCA\DAV\DAV\MiscCustomPropertiesBackend;
 use OCA\DAV\DAV\PublicAuth;
-use OCA\DAV\DAV\SecureViewPlugin;
+use OCA\DAV\DAV\ViewOnlyPlugin;
 use OCA\DAV\Files\BrowserErrorPagePlugin;
 use OCA\DAV\Files\FileLocksBackend;
 use OCA\DAV\Files\PreviewPlugin;
@@ -189,8 +189,10 @@ class Server {
 
 		$this->server->addPlugin(new CopyEtagHeaderPlugin());
 		$this->server->addPlugin(new ChunkingPlugin());
-		$this->server->addPlugin(new SecureViewPlugin(
-			\OC::$server->getLogger()
+
+		// Allow view-only plugin for dav requests
+		$this->server->addPlugin(new ViewOnlyPlugin(
+			\OC::$server->getShareManager()
 		));
 
 		if (BrowserErrorPagePlugin::isBrowserRequest($request)) {

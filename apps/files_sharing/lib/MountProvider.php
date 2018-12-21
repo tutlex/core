@@ -157,13 +157,14 @@ class MountProvider implements IMountProvider {
 				continue;
 			}
 
+			$baseShare = $shares[0];
 			$superShare = $this->shareManager->newShare();
 
 			// compute super share based on first entry of the group
-			$superShare->setId($shares[0]->getId())
-				->setShareOwner($shares[0]->getShareOwner())
-				->setNodeId($shares[0]->getNodeId())
-				->setTarget($shares[0]->getTarget());
+			$superShare->setId($baseShare->getId())
+				->setShareOwner($baseShare->getShareOwner())
+				->setNodeId($baseShare->getNodeId())
+				->setTarget($baseShare->getTarget());
 
 			// use most permissive permissions
 			$permissions = 0;
@@ -191,8 +192,12 @@ class MountProvider implements IMountProvider {
 					}
 				}
 			}
-
 			$superShare->setPermissions($permissions);
+
+			// super share gets extra permission of first entry
+			if ($superShare instanceof \OC\Share20\Share && $baseShare instanceof \OC\Share20\Share) {
+				$superShare->setExtraPermissions($baseShare->getExtraPermissions());
+			}
 
 			$result[] = [$superShare, $shares];
 		}

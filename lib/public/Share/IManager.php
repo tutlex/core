@@ -359,4 +359,11 @@ interface IManager {
 	 * @since 10.0.9
 	 */
 	public function updateShareForRecipient(IShare $share, $recipientId);
+
+	//FIXME: Add filters for users and filetypes
+	public function registerExtraPermission($app, $permission, $permissionLabel, $permissionNotification);
+	public function getExtraPermissionApps();
+	public function getExtraPermissionKeys($app);
+	public function getExtraPermissionLabel($app, $permission);
+	public function getExtraPermissionNotification($app, $permission);
 }

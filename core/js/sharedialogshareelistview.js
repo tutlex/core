@@ -35,36 +35,42 @@
 			'{{/unless}} {{/if}}' +
 			'{{#if isResharingAllowed}} {{#if sharePermissionPossible}}' +
 			'<span class="shareOption">' +
-			'<input id="canShare-{{cid}}-{{shareWith}}" type="checkbox" name="share" class="permissions checkbox" {{#if hasSharePermission}}checked="checked"{{/if}} data-permissions="{{sharePermission}}" />' +
-			'<label for="canShare-{{cid}}-{{shareWith}}">{{canShareLabel}}</label>' +
+			'<input id="can-share-{{cid}}-{{shareWith}}" type="checkbox" name="share" class="permissions checkbox" {{#if hasSharePermission}}checked="checked"{{/if}} data-permissions="{{sharePermission}}" />' +
+			'<label for="can-share-{{cid}}-{{shareWith}}">{{canShareLabel}}</label>' +
 			'</span>' +
 			'{{/if}} {{/if}}' +
 			'{{#if editPermissionPossible}}' +
 			'<span class="shareOption">' +
-			'<input id="canEdit-{{cid}}-{{shareWith}}" type="checkbox" name="edit" class="permissions checkbox" {{#if hasEditPermission}}checked="checked"{{/if}} />' +
-			'<label for="canEdit-{{cid}}-{{shareWith}}">{{canEditLabel}}</label>' +
+			'<input id="can-edit-{{cid}}-{{shareWith}}" type="checkbox" name="edit" class="permissions checkbox" {{#if hasEditPermission}}checked="checked"{{/if}} />' +
+			'<label for="can-edit-{{cid}}-{{shareWith}}">{{canEditLabel}}</label>' +
 			'<a href="#" class="showCruds"><img alt="{{crudsLabel}}" src="{{triangleSImage}}"/></a>' +
 			'</span>' +
 			'{{/if}}' +
 			'<div class="cruds hidden">' +
 			'{{#if createPermissionPossible}}' +
 			'<span class="shareOption">' +
-			'<input id="canCreate-{{cid}}-{{shareWith}}" type="checkbox" name="create" class="permissions checkbox" {{#if hasCreatePermission}}checked="checked"{{/if}} data-permissions="{{createPermission}}"/>' +
-			'<label for="canCreate-{{cid}}-{{shareWith}}">{{createPermissionLabel}}</label>' +
+			'<input id="can-create-{{cid}}-{{shareWith}}" type="checkbox" name="create" class="permissions checkbox" {{#if hasCreatePermission}}checked="checked"{{/if}} data-permissions="{{createPermission}}"/>' +
+			'<label for="can-create-{{cid}}-{{shareWith}}">{{createPermissionLabel}}</label>' +
 			'</span>' +
 			'{{/if}}' +
 			'{{#if updatePermissionPossible}}' +
 			'<span class="shareOption">' +
-			'<input id="canUpdate-{{cid}}-{{shareWith}}" type="checkbox" name="update" class="permissions checkbox" {{#if hasUpdatePermission}}checked="checked"{{/if}} data-permissions="{{updatePermission}}"/>' +
-			'<label for="canUpdate-{{cid}}-{{shareWith}}">{{updatePermissionLabel}}</label>' +
+			'<input id="can-update-{{cid}}-{{shareWith}}" type="checkbox" name="update" class="permissions checkbox" {{#if hasUpdatePermission}}checked="checked"{{/if}} data-permissions="{{updatePermission}}"/>' +
+			'<label for="can-update-{{cid}}-{{shareWith}}">{{updatePermissionLabel}}</label>' +
 			'</span>' +
 			'{{/if}}' +
 			'{{#if deletePermissionPossible}}' +
 			'<span class="shareOption">' +
-			'<input id="canDelete-{{cid}}-{{shareWith}}" type="checkbox" name="delete" class="permissions checkbox" {{#if hasDeletePermission}}checked="checked"{{/if}} data-permissions="{{deletePermission}}"/>' +
-			'<label for="canDelete-{{cid}}-{{shareWith}}">{{deletePermissionLabel}}</label>' +
+			'<input id="can-delete-{{cid}}-{{shareWith}}" type="checkbox" name="delete" class="permissions checkbox" {{#if hasDeletePermission}}checked="checked"{{/if}} data-permissions="{{deletePermission}}"/>' +
+			'<label for="can-delete-{{cid}}-{{shareWith}}">{{deletePermissionLabel}}</label>' +
 			'</span>' +
 			'{{/if}}' +
+			'{{#each extraPermissions}}' +
+			'<span class="shareOption">' +
+			'<input id="can-{{permissionName}}-{{cid}}-{{shareWith}}" type="checkbox" name="{{permissionName}}" class="extra-permissions checkbox" {{#if permissionEnabled}}checked="checked"{{/if}} data-app="{{appId}}" data-enabled="{{permissionEnabled}}" data-notification="{{permissionNotification}}"/>' +
+			'<label for="can-{{permissionName}}-{{cid}}-{{shareWith}}">{{permissionLabel}}</label>' +
+			'</span>' +
+			'{{/each}}' +
 			'</div>' +
 			'</li>' +
 			'{{/each}}' +
@@ -94,6 +100,7 @@
 		events: {
 			'click .unshare': 'onUnshare',
 			'click .permissions': 'onPermissionChange',
+			'click .extra-permissions': 'onPermissionChange',
 			'click .showCruds': 'onCrudsToggle',
 			'click .mailNotification': 'onSendMailNotification'
 		},
@@ -112,8 +119,29 @@
 		},
 
 		/**
-		 *
-		 * @param {OC.Share.Types.ShareInfo} shareInfo
+		 * @param shareIndex
+		 * @returns {object}
+		 */
+		getExtraPermissionsObject: function(shareIndex) {
+			var shareWith = this.model.getShareWith(shareIndex);
+			var permissions = this.model.getShareExtraPermissions(shareIndex);
+
+			var list = [];
+			permissions.map(function(permission) {
+				list.push(_.extend(
+					{
+						cid: this.cid,
+						shareWith: shareWith
+					},
+					permission)
+				);
+			});
+
+			return list;
+		},
+
+		/**
+		 * @param shareIndex
 		 * @returns {object}
 		 */
 		getShareeObject: function(shareIndex) {
@@ -136,6 +164,7 @@
 				hasCreatePermission: this.model.hasCreatePermission(shareIndex),
 				hasUpdatePermission: this.model.hasUpdatePermission(shareIndex),
 				hasDeletePermission: this.model.hasDeletePermission(shareIndex),
+				extraPermissions: this.getExtraPermissionsObject(shareIndex),
 				wasMailSent: this.model.notificationMailWasSent(shareIndex),
 				shareWith: shareWith,
 				shareWithDisplayName: shareWithDisplayName,
@@ -261,7 +290,7 @@
 			var shareType = $li.data('share-type');
 			var shareWith = $li.attr('data-share-with');
 
-			// adjust checkbox states
+			// adjust share permissions and their required checkbox states
 			var $checkboxes = $('.permissions', $li).not('input[name="edit"]').not('input[name="share"]');
 			var checked;
 			if ($element.attr('name') === 'edit') {
@@ -279,7 +308,24 @@
 				permissions |= $(checkbox).data('permissions');
 			});
 
-			this.model.updateShare(shareId, {permissions: permissions});
+			// Check extra share permissions
+			/** @type OC.Share.Types.SharePermission[] **/
+			var extraPermissions = [];
+			$('.extra-permissions', $li).each(function(index, checkbox) {
+				var checked = $(checkbox).is(':checked');
+				var enabled = $(checkbox).data('enabled');
+				if (checked && !enabled) {
+					OC.Notification.showTemporary($(checkbox).data('notification'));
+				}
+				$(checkbox).prop('enabled', checked);
+				extraPermissions.push({
+					appId : $(checkbox).data('app'),
+					permissionName: $(checkbox).attr('name'),
+					permissionEnabled: checked
+				});
+			});
+
+			this.model.updateShare(shareId, {permissions: permissions, extraPermissions: extraPermissions});
 		},
 
 		onCrudsToggle: function(event) {
