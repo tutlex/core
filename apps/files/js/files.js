@@ -306,12 +306,23 @@
 		handleDownload: function(url, callback) {
 			var randomToken = Math.random().toString(36).substring(2),
 				checkForDownloadCookie = function() {
-					if (!OC.Util.isCookieSetToValue('ocDownloadStarted', randomToken)){
-						return false;
-					} else {
+					var downloadSuccess = OC.Util.isCookieSetToValue('ocDownloadStarted', randomToken);
+					var downloadFailed = OC.Util.isCookieSetToValue('ocDownloadFailed', randomToken) &&
+						!OC.Util.isCookieSetToValue('ocDownloadStarted', randomToken);
+
+					if (downloadFailed || downloadSuccess) {
+						if (downloadFailed) {
+							OC.Notification.show(t('files',
+								'You cannot download this file!'),
+								{type : 'error'}
+							);
+						}
+
 						callback();
 						return true;
 					}
+
+					return false
 				};
 
 			if (url.indexOf('?') >= 0) {
