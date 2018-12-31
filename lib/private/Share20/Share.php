@@ -28,6 +28,7 @@ use OCP\Files\NotFoundException;
 use OCP\IUserManager;
 use OCP\Share\Exceptions\IllegalIDChangeException;
 use OC\Share\Constants;
+use OC\Share20\ExtraPermissions\Permissions as ExtraSharePermissions;
 
 class Share implements \OCP\Share\IShare {
 

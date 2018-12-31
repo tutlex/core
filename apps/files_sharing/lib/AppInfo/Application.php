@@ -91,7 +91,8 @@ class Application extends App {
 				$server->getConfig(),
 				$c->query(NotificationPublisher::class),
 				$server->getEventDispatcher(),
-				$c->query(SharingBlacklist::class)
+				$c->query(SharingBlacklist::class),
+				$server->getShareExtraPermissionsManager()
 			);
 		});
 

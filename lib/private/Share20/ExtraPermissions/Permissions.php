@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-namespace OC\Share20;
+namespace OC\Share20\ExtraPermissions;
 
-class ExtraSharePermissions {
+class Permissions {
 
 	/** @var array */
 	private $permissions;

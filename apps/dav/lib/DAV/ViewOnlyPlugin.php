@@ -24,14 +24,11 @@ namespace OCA\DAV\DAV;
 use OCA\DAV\Connector\Sabre\Exception\Forbidden;
 use OCA\DAV\Connector\Sabre\File;
 use OCP\Files\InvalidPathException;
-use OCP\ILogger;
-use OCP\Share\IManager;
+use OCP\Share\ExtraPermissions\IManager;
 use Sabre\DAV\Exception\ServiceUnavailable;
 use Sabre\DAV\Server;
 use Sabre\DAV\ServerPlugin;
 use Sabre\HTTP\RequestInterface;
-use Sabre\HTTP\ResponseInterface;
-use Sabre\DAV\Exception\BadRequest;
 use Sabre\DAV\Exception\NotFound;
 use \OCP\Files\NotFoundException;
 
@@ -39,21 +36,20 @@ use \OCP\Files\NotFoundException;
  * Sabre plugin for the the file secure-view:
  */
 class ViewOnlyPlugin extends ServerPlugin {
-	const NS_OWNCLOUD = 'http://owncloud.org/ns';
 
 	/** @var \Sabre\DAV\Server $server */
 	private $server;
 
 	/** @var IManager */
-	private $shareManager;
+	private $extraSharePermissionsManager;
 
 	/**
 	 * ViewOnlyPlugin plugin
 	 *
-	 * @param IManager $shareManager
+	 * @param IManager $extraSharePermissionsManager
 	 */
-	public function __construct(IManager $shareManager) {
-		$this->shareManager = $shareManager;
+	public function __construct(IManager $extraSharePermissionsManager) {
+		$this->extraSharePermissionsManager = $extraSharePermissionsManager;
 	}
 
 	/**
@@ -122,7 +118,7 @@ class ViewOnlyPlugin extends ServerPlugin {
 	}
 
 	public function registerExtraPermissions() {
-		$this->shareManager->registerExtraPermission(
+		$this->extraSharePermissionsManager->registerExtraPermission(
 			'dav',
 			'view-only',
 			'enable view only',

@@ -39,6 +39,7 @@ use OCP\IUserManager;
 use OCP\Files\IRootFolder;
 use OCP\IDBConnection;
 use OCP\Files\Node;
+use OC\Share20\ExtraPermissions\Permissions as ExtraSharePermissions;
 
 /**
  * Class DefaultShareProvider

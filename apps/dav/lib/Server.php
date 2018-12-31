@@ -192,7 +192,7 @@ class Server {
 
 		// Allow view-only plugin for dav requests
 		$this->server->addPlugin(new ViewOnlyPlugin(
-			\OC::$server->getShareManager()
+			\OC::$server->getShareExtraPermissionsManager()
 		));
 
 		if (BrowserErrorPagePlugin::isBrowserRequest($request)) {

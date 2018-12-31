@@ -52,7 +52,7 @@ class Application extends App {
 		 * Register extra share permission plugin for view-only
 		 */
 		$viewOnlyPlugin = new ViewOnlyPlugin(
-			$this->getContainer()->getServer()->getShareManager()
+			$this->getContainer()->getServer()->getShareExtraPermissionsManager()
 		);
 		$viewOnlyPlugin->registerExtraPermissions();
 	}

@@ -515,6 +515,12 @@ interface IServerContainer extends IContainer {
 	public function getShareManager();
 
 	/**
+	 * @return \OCP\Share\ExtraPermissions\IManager
+	 * @since 11.0.0
+	 */
+	public function getShareExtraPermissionsManager();
+
+	/**
 	 * @return IContentSecurityPolicyManager
 	 * @since 9.0.0
 	 */

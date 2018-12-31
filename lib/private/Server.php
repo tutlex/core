@@ -889,6 +889,9 @@ class Server extends ServerContainer implements IServerContainer, IServiceLoader
 
 			return $manager;
 		});
+		$this->registerService('ShareExtraPermissionsManager', function (Server $c) {
+			return new \OC\Share20\ExtraPermissions\Manager();
+		});
 
 		$this->registerService('ThemeService', function ($c) {
 			return new ThemeService(
@@ -1606,6 +1609,13 @@ class Server extends ServerContainer implements IServerContainer, IServiceLoader
 	 */
 	public function getUserStoragesService() {
 		return $this->query('UserStoragesService');
+	}
+
+	/**
+	 * @return \OCP\Share\ExtraPermissions\IManager
+	 */
+	public function getShareExtraPermissionsManager() {
+		return $this->query('ShareExtraPermissionsManager');
 	}
 
 	/**

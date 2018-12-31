@@ -22,7 +22,8 @@
 namespace OCA\Files_Sharing\Controller;
 
 use OC\OCS\Result;
-use OC\Share20\ExtraSharePermissions;
+use OC\Share20\ExtraPermissions\Permissions as ExtraSharePermissions;
+use OCP\Share\ExtraPermissions\IManager as IExtraSharePermissionsManager;
 use OCP\AppFramework\OCSController;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
@@ -74,6 +75,8 @@ class Share20OcsController extends OCSController {
 	private $eventDispatcher;
 	/** @var SharingBlacklist */
 	private $sharingBlacklist;
+	/** @var IExtraSharePermissionsManager */
+	private $extraSharePermissionsManager;
 
 	/**
 	 * @var string
@@ -93,7 +96,8 @@ class Share20OcsController extends OCSController {
 		IConfig $config,
 		NotificationPublisher $notificationPublisher,
 		EventDispatcher $eventDispatcher,
-		SharingBlacklist $sharingBlacklist
+		SharingBlacklist $sharingBlacklist,
+		IExtraSharePermissionsManager $extraSharePermissionsManager
 	) {
 		parent::__construct($appName, $request);
 		$this->request = $request;
@@ -109,6 +113,7 @@ class Share20OcsController extends OCSController {
 		$this->eventDispatcher = $eventDispatcher;
 		$this->sharingBlacklist = $sharingBlacklist;
 		$this->additionalInfoField = $this->config->getAppValue('core', 'user_additional_info_field', '');
+		$this->extraSharePermissionsManager = $extraSharePermissionsManager;
 	}
 
 	/**
@@ -149,14 +154,14 @@ class Share20OcsController extends OCSController {
 		$formattedShareExtraPermissions = [];
 
 		if ($share instanceof \OC\Share20\Share) {
-			$registeredApps = $this->shareManager->getExtraPermissionApps();
+			$registeredApps = $this->extraSharePermissionsManager->getExtraPermissionApps();
 			foreach($registeredApps as $app) {
-				$registeredPermissions = $this->shareManager->getExtraPermissionKeys($app);
+				$registeredPermissions = $this->extraSharePermissionsManager->getExtraPermissionKeys($app);
 				foreach($registeredPermissions as $permissionName) {
 					$permission["appId"] = $app;
 					$permission["permissionName"] = $permissionName;
-					$permission["permissionLabel"] = $this->shareManager->getExtraPermissionLabel($app, $permissionName);
-					$permission["permissionNotification"] = $this->shareManager->getExtraPermissionNotification($app, $permissionName);
+					$permission["permissionLabel"] = $this->extraSharePermissionsManager->getExtraPermissionLabel($app, $permissionName);
+					$permission["permissionNotification"] = $this->extraSharePermissionsManager->getExtraPermissionNotification($app, $permissionName);
 					$permission["permissionEnabled"] = $share->getExtraPermissions()->hasExtraPermission($app, $permissionName);
 
 					$formattedShareExtraPermissions[] = $permission;
