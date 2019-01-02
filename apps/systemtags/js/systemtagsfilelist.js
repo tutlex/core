@@ -130,6 +130,28 @@
 			OC.SystemTags.collection.fetch({
 				success: function() {
 					var results = OC.SystemTags.collection.filterByName(query.term);
+					/**
+					 * Check if static tags are visible for this user.
+					 * If so show it, else don't.
+					 */
+					var indexToSplice = [];
+					for(var i=0; i < results.length; i++) {
+						var tagAttribute = results[i].attributes;
+						//Check if the tag is static tag
+						if (tagAttribute.userEditable === false && tagAttribute.userAssignable === true) {
+							if (!OC.isUserAdmin() && tagAttribute.editableInGroup === false) {
+								var index = i;
+								if (indexToSplice.length > 0) {
+									index -= indexToSplice.length;
+								}
+								indexToSplice.push(index);
+							}
+						}
+					}
+
+					indexToSplice.forEach(function (index) {
+						results.splice(index, 1);
+					});
 
 					query.callback({
 						results: _.invoke(results, 'toJSON')
